@@ -1,0 +1,31 @@
+const mongoose = require('mongoose');
+
+const dns = require('dns');
+dns.setServers(['8.8.8.8', '8.8.4.4']);
+
+const url = process.env.MONGODB_URI;
+console.log('connecting to', url);
+mongoose.connect(url, {family: 4})
+  .then(result => {
+    console.log('connected to MongoDB');
+  })
+  .catch(error => {
+    console.log('error connecting to DB:', error.message);
+  })
+
+const noteSchema = new mongoose.Schema({
+  content: String,
+  important: Boolean,
+});
+
+noteSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString();
+    delete returnedObject._id;
+    delete returnedObject.__v;
+  }
+})
+
+const Note = mongoose.model('Note', noteSchema);
+
+module.exports = Note;

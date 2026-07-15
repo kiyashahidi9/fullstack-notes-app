@@ -1,5 +1,7 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const Note = require('./models/note')
 
 const app = express();
 
@@ -37,18 +39,16 @@ app.get('/', (request, response) => {
 })
 
 app.get('/api/notes', (req, res) => {
-  res.json(notes)
+  Note.find({}).then(notes => {
+    res.json(notes)
+  })
 })
 
 app.get('/api/notes/:id', (request, response) => {
   const id = request.params.id
-  const note = notes.find(note => note.id === id)
-
-  if (note) {
+  Note.findById(id).then(note => {
     response.json(note);
-  } else {
-    response.status(404).end();
-  }
+  })
 })
 
 app.delete('/api/notes/:id', (request, response) => {
@@ -67,18 +67,17 @@ app.post('/api/notes', (request, response) => {
     })
   }
 
-  let note = {
-    id: generateID(),
+  let note = new Note({
     content: body.content,
     important: body.important || false,
-  }
+  })
 
-  notes = notes.concat(note);
-
-  response.json(note);
+  note.save().then(savedNote => {
+    response.json(savedNote);
+  })
 })
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })

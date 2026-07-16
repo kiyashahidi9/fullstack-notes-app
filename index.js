@@ -14,12 +14,14 @@ app.get('/', (request, response) => {
   response.send('<h1>Hello World!</h1>')
 })
 
+// GET ALL NOTES
 app.get('/api/notes', (req, res) => {
   Note.find({}).then(notes => {
     res.json(notes)
   })
 })
 
+// GET SPECIFIC NOTE
 app.get('/api/notes/:id', (request, response, next) => {
   const id = request.params.id
   Note.findById(id).then(note => {
@@ -32,6 +34,7 @@ app.get('/api/notes/:id', (request, response, next) => {
   .catch(error => next(error))
 })
 
+// DELETE NOTE
 app.delete('/api/notes/:id', (request, response, next) => {
   const id = request.params.id;
   Note.findByIdAndDelete(id)
@@ -41,14 +44,9 @@ app.delete('/api/notes/:id', (request, response, next) => {
     .catch(error => next(error));
 })
 
-app.post('/api/notes', (request, response) => {
+// POST A NOTE
+app.post('/api/notes', (request, response, next) => {
   const body = request.body;
-  
-  if (!body.content) {
-    return response.status(400).json({
-      error: "content missing :(",
-    })
-  }
   
   let note = new Note({
     content: body.content,
@@ -58,8 +56,10 @@ app.post('/api/notes', (request, response) => {
   note.save().then(savedNote => {
     response.json(savedNote);
   })
+  .catch(error => next(error));
 })
 
+// UPDATE NOTE
 app.put('/api/notes/:id', (request, response, next) => {
   const {content, important} = request.body;
 
@@ -83,6 +83,8 @@ function errorHandler(error, request, response, next) {
 
   if (error.name === 'CastError') {
     return response.status(400).send({error: 'malformatted id'})
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({error: error.message})
   }
 
   next(error);

@@ -1,10 +1,10 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const Note = require('./models/note');
-const Person = require('../phonebook-backend-project/models/person');
 
-const app = express();
+const Note = require('./models/note');
+const Person = require('../phonebook-backend-project/models/person')
+const app = express()
 
 app.use(express.json())
 app.use(cors())

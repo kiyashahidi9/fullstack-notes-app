@@ -1,17 +1,5 @@
 const mongoose = require('mongoose')
 
-const dns = require('dns')
-dns.setServers(['8.8.8.8', '8.8.4.4'])
-
-const url = process.env.MONGODB_URI
-mongoose.connect(url, { family: 4 })
-  .then(() => {
-    console.log('connected to MongoDB')
-  })
-  .catch(error => {
-    console.log('error connecting to DB:', error.message)
-  })
-
 const noteSchema = new mongoose.Schema({
   content: {
     type: String,
@@ -19,6 +7,10 @@ const noteSchema = new mongoose.Schema({
     required: true,
   },
   important: Boolean,
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }
 })
 
 noteSchema.set('toJSON', {
